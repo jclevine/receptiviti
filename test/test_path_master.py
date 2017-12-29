@@ -35,7 +35,7 @@ class TestPathMaster(TestCase):
         actual = path_master.calculate_distance(None)
         self.assertEqual(0.0, actual)
 
-    # TODO: jlevine - Create own error if it seems necessary
-    def test_raises_type_error_if_no_edges_and_any_vertices(self):
+    def test_returns_neg_1_if_no_edges_and_any_vertices(self):
         path_master = PathMaster(None)
-        self.assertRaisesRegex(TypeError, 'No edges specified.*', path_master.calculate_distance, ['AB3'])
+        actual = path_master.calculate_distance(['ABC'])
+        self.assertEqual(-1, actual)
