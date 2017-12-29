@@ -8,7 +8,11 @@ class PathMaster:
     def __init__(self, edges):
         self._edges = edges
         if edges:
-            self._directed_graph = nx.parse_edgelist(parse_edge_list(self._edges), data=[('weight', float)])
+            self._directed_graph = nx.parse_edgelist(
+                parse_edge_list(self._edges),
+                data=[('weight', float)],
+                create_using=nx.DiGraph()
+            )
             self._edge_attributes = nx.get_edge_attributes(self._directed_graph, 'weight')
 
     def is_not_asking_for_distance_of_anything(self, path):
