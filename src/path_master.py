@@ -55,7 +55,7 @@ class PathMaster:
         return sum([self._edge_attributes[edge] for edge in edge_tuples])
 
     def trip_cardinality(self, start, end, stop_range):
-        if stop_range == [0]:
+        if stop_range == [0] or not nx.has_path(self._directed_graph, start, end):
             return 0
 
     @staticmethod

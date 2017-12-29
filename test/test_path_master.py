@@ -84,3 +84,8 @@ class TestPathMaster(TestCase):
         path_master = PathMaster(['AB3', 'BC10'])
         actual = path_master.trip_cardinality(start='A', end='B', stop_range=[0])
         self.assertEqual(0, actual)
+
+    def test_trip_cardinality_with_max_1_stop_is_0_if_path_does_not_exist(self):
+        path_master = PathMaster(['AB3', 'BC10', 'DA4'])
+        actual = path_master.trip_cardinality(start='A', end='D', stop_range=[1])
+        self.assertEqual(0, actual)
