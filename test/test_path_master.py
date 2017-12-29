@@ -94,3 +94,13 @@ class TestPathMaster(TestCase):
         path_master = PathMaster(['AB3'])
         actual = path_master.trip_cardinality(start='A', end='B', stop_range=[1])
         self.assertEqual(1, actual)
+
+    def test_trip_cardinality_returns_0_if_min_2_stop_with_one_stop_available(self):
+        path_master = PathMaster(['AB3'])
+        actual = path_master.trip_cardinality(start='A', end='B', stop_range=[2])
+        self.assertEqual(0, actual)
+
+    def test_trip_cardinality_with_max_1_stop_is_1_if_path_does_exist_with_range_length_1(self):
+        path_master = PathMaster(['AB3'])
+        actual = path_master.trip_cardinality(start='A', end='B', stop_range=1)
+        self.assertEqual(1, actual)
