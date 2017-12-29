@@ -25,4 +25,4 @@ class TestQuiz(TestCase):
 
     def test_5(self):
         actual = self.path_master.calculate_distance(['A', 'E', 'D'])
-        self.assertEqual(-1, actual)
+        self.assertEqual('NO SUCH ROUTE', actual)

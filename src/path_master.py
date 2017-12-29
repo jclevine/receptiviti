@@ -3,6 +3,7 @@ import networkx as nx
 from src.edge_parser import parse_edge_list
 
 
+# TODO: jlevine - Make constant for 'NO SUCH ROUTE' that can be configured?
 class PathMaster:
 
     def __init__(self, edges):
@@ -45,8 +46,11 @@ class PathMaster:
         # Normal Cases
         edge_tuples = self.build_edge_tuples(path)
 
-        if self.any_vertex_does_not_exist(path) or not self.does_path_exist(edge_tuples):
+        if self.any_vertex_does_not_exist(path):
             return -1
+
+        if not self.does_path_exist(edge_tuples):
+            return 'NO SUCH ROUTE'
 
         return sum([self._edge_attributes[edge] for edge in edge_tuples])
 
