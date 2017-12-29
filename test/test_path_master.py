@@ -4,15 +4,12 @@ from src.path_master import PathMaster
 
 
 class TestPathMaster(TestCase):
-    edges = ['AB5', 'BC4', 'CD8', 'DC8', 'DE6', 'AD5', 'CE2', 'EB3', 'AE7']
+    edges = ['AB5', 'BC4', 'CD8', 'DC8', 'DE6', 'AD5', 'CE2', 'EB3', 'AE10']
 
     def test_initialize_graph_with_no_edges(self):
         self.assertIsNotNone(PathMaster(None))
 
     def test_initialize_graph_with_edges(self):
-        self.assertIsNotNone(PathMaster(self.edges))
-
-    def test_initialize_graph(self):
         self.assertIsNotNone(PathMaster(self.edges))
 
     def test_calculates_0_distance_with_no_edges_and_no_vertices_specified(self):
@@ -66,5 +63,3 @@ class TestPathMaster(TestCase):
         path_master = PathMaster(['AB3', 'CD9'])
         actual = path_master.calculate_distance(['A', 'C'])
         self.assertEqual(-1, actual)
-
-    # TODO: jlevine - Test case for 2+ char weight (eg. 10)
