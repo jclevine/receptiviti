@@ -21,7 +21,7 @@ class PathMaster:
         return len(path) == 1
 
     def any_vertex_does_not_exist(self, path):
-        return set(path) - set(nx.nodes(self._directed_graph)) != 0
+        return bool(set(path) - set(nx.nodes(self._directed_graph)))
 
     def calculate_distance(self, path):
         # Special Cases
@@ -35,6 +35,6 @@ class PathMaster:
             return 0.0 if self.is_path_one_vertex(path) and path[0] in nx.nodes(self._directed_graph) else -1
 
         # Normal Cases
-        if self.any_vertex_does_not_exist(path):
+        if self.any_vertex_does_not_exist(path) or not nx.has_path(self._directed_graph, path[0], path[-1]):
             return -1
 

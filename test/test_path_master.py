@@ -61,3 +61,10 @@ class TestPathMaster(TestCase):
         path_master = PathMaster(['AB3'])
         actual = path_master.calculate_distance(['A', 'C'])
         self.assertEqual(-1, actual)
+
+    def test_returns_neg1_distance_if_path_does_not_exist(self):
+        path_master = PathMaster(['AB3', 'CD9'])
+        actual = path_master.calculate_distance(['A', 'C'])
+        self.assertEqual(-1, actual)
+
+    # TODO: jlevine - Test case for 2+ char weight (eg. 10)
