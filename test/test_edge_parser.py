@@ -15,3 +15,7 @@ class TestEdgeParser(TestCase):
     def test_returns_edge_list_with_one_edge(self):
         actual = parse_edge_list(['AB3'])
         self.assertEqual(['A B 3'], actual)
+
+    def test_returns_edge_list_with_three_edges(self):
+        actual = parse_edge_list(['AB3', 'BC4', 'CD8'])
+        self.assertEqual(['A B 3', 'B C 4', 'C D 8'], actual)
