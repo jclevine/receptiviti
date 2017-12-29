@@ -18,3 +18,11 @@ class TestQuiz(TestCase):
     def test_3(self):
         actual = self.path_master.calculate_distance(['A', 'D', 'C'])
         self.assertEqual(13, actual)
+
+    def test_4(self):
+        actual = self.path_master.calculate_distance(['A', 'E', 'B', 'C', 'D'])
+        self.assertEqual(22, actual)
+
+    def test_5(self):
+        actual = self.path_master.calculate_distance(['A', 'E', 'D'])
+        self.assertEqual(-1, actual)

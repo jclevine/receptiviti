@@ -73,3 +73,8 @@ class TestPathMaster(TestCase):
         path_master = PathMaster(['AB3', 'BC10', 'CD100'])
         actual = path_master.calculate_distance(['A', 'B', 'C', 'D'])
         self.assertEqual(113, actual)
+
+    def test_returns_neg1_if_path_exists_from_start_to_end_vertices_but_not_by_given_path(self):
+        path_master = PathMaster(['AB3', 'AC5'])
+        actual = path_master.calculate_distance(['A', 'B', 'C'])
+        self.assertEqual(-1, actual)

@@ -21,6 +21,9 @@ class PathMaster:
     def no_possible_path_with_no_edges(self, path):
         return not self._edges and path
 
+    def does_path_exist(self, edge_tuples):
+        return all([edge in self._edge_attributes for edge in edge_tuples])
+
     @staticmethod
     def is_path_one_vertex(path):
         return len(path) == 1
@@ -40,12 +43,13 @@ class PathMaster:
             return 0.0 if self.is_path_one_vertex(path) and path[0] in nx.nodes(self._directed_graph) else -1
 
         # Normal Cases
-        if self.any_vertex_does_not_exist(path) or not nx.has_path(self._directed_graph, path[0], path[-1]):
+        edge_tuples = self.build_edge_tuples(path)
+
+        if self.any_vertex_does_not_exist(path) or not self.does_path_exist(edge_tuples):
             return -1
 
-        path_tuples = self.build_path_tuples(path)
-        return sum([self._edge_attributes[edge] for edge in path_tuples])
+        return sum([self._edge_attributes[edge] for edge in edge_tuples])
 
     @staticmethod
-    def build_path_tuples(path):
+    def build_edge_tuples(path):
         return [tuple(path[i:i + 2]) for i in range(len(path) - 1)]
