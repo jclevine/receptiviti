@@ -58,6 +58,12 @@ class PathMaster:
         if stop_range == [0] or not nx.has_path(self._directed_graph, start, end):
             return 0
 
+        all_paths = list(nx.all_simple_paths(self._directed_graph, start, end, stop_range[-1]))
+
+        def stop_count(hubs):
+            return len(hubs) - 1
+        return len([path for path in all_paths if stop_count(path) in stop_range])
+
     @staticmethod
     def build_edge_tuples(path):
         return [tuple(path[i:i + 2]) for i in range(len(path) - 1)]
