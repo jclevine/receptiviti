@@ -14,7 +14,6 @@ class PathMaster:
                 data=[('weight', float)],
                 create_using=nx.DiGraph()
             )
-            self._edge_attributes = nx.get_edge_attributes(self._directed_graph, 'weight')
 
     def is_not_asking_for_distance_of_anything(self, path):
         return not self._edges and not path
@@ -23,7 +22,7 @@ class PathMaster:
         return not self._edges and path
 
     def does_path_exist(self, edge_tuples):
-        return all([edge in self._edge_attributes for edge in edge_tuples])
+        return all([self._directed_graph.has_edge(*edge) for edge in edge_tuples])
 
     @staticmethod
     def is_path_one_vertex(path):
@@ -52,7 +51,7 @@ class PathMaster:
         if not self.does_path_exist(edge_tuples):
             return 'NO SUCH ROUTE'
 
-        return sum([self._edge_attributes[edge] for edge in edge_tuples])
+        return sum([self._directed_graph.get_edge_data(*edge)['weight'] for edge in edge_tuples])
 
     def trip_cardinality(self, start, end, stop_range):
         stop_range = [stop_range] if type(stop_range) is not list else stop_range
