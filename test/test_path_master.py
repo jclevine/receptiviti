@@ -49,3 +49,8 @@ class TestPathMaster(TestCase):
         path_master = PathMaster(['AB3'])
         actual = path_master.calculate_distance(['A'])
         self.assertEqual(0, actual)
+
+    def test_returns_neg1_distance_if_only_one_non_existent_vertex(self):
+        path_master = PathMaster(['AB3'])
+        actual = path_master.calculate_distance(['C'])
+        self.assertEqual(-1, actual)
