@@ -50,7 +50,14 @@ class TestPathMaster(TestCase):
         actual = path_master.calculate_distance(['A'])
         self.assertEqual(0, actual)
 
+    # TODO: jlevine - Write validation tests/implementation for both graph input and path
+
     def test_returns_neg1_distance_if_only_one_non_existent_vertex(self):
         path_master = PathMaster(['AB3'])
         actual = path_master.calculate_distance(['C'])
+        self.assertEqual(-1, actual)
+
+    def test_returns_neg1_distance_if_any_vertex_does_not_exist(self):
+        path_master = PathMaster(['AB3'])
+        actual = path_master.calculate_distance(['A', 'C'])
         self.assertEqual(-1, actual)
