@@ -44,3 +44,8 @@ class TestPathMaster(TestCase):
         path_master = PathMaster([])
         actual = path_master.calculate_distance(['A'])
         self.assertEqual(-1, actual)
+
+    def test_returns_0_distance_if_only_one_existing_vertex(self):
+        path_master = PathMaster(['AB3'])
+        actual = path_master.calculate_distance(['A'])
+        self.assertEqual(0, actual)
