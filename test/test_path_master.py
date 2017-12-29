@@ -63,3 +63,8 @@ class TestPathMaster(TestCase):
         path_master = PathMaster(['AB3', 'CD9'])
         actual = path_master.calculate_distance(['A', 'C'])
         self.assertEqual(-1, actual)
+
+    def test_returns_distance_if_single_edge_exists(self):
+        path_master = PathMaster(['AB3'])
+        actual = path_master.calculate_distance(['A', 'B'])
+        self.assertEqual(3, actual)

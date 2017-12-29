@@ -9,6 +9,7 @@ class PathMaster:
         self._edges = edges
         if edges:
             self._directed_graph = nx.parse_edgelist(parse_edge_list(self._edges), data=[('weight', float)])
+            self._edge_attributes = nx.get_edge_attributes(self._directed_graph, 'weight')
 
     def is_not_asking_for_distance_of_anything(self, path):
         return not self._edges and not path
@@ -38,3 +39,9 @@ class PathMaster:
         if self.any_vertex_does_not_exist(path) or not nx.has_path(self._directed_graph, path[0], path[-1]):
             return -1
 
+        path_tuples = self.build_path_tuples(path)
+        return sum([self._edge_attributes[edge] for edge in path_tuples])
+
+    @staticmethod
+    def build_path_tuples(path):
+        return [tuple(path[i:i + 2]) for i in range(len(path) - 1)]
