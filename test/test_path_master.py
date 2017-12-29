@@ -3,6 +3,7 @@ from unittest import TestCase
 from src.path_master import PathMaster
 
 
+# TODO: jlevine - Change names to be in the domain (eg. trips, stops)
 class TestPathMaster(TestCase):
     edges = ['AB5', 'BC4', 'CD8', 'DC8', 'DE6', 'AD5', 'CE2', 'EB3', 'AE10']
 
@@ -78,3 +79,8 @@ class TestPathMaster(TestCase):
         path_master = PathMaster(['AB3', 'AC5'])
         actual = path_master.calculate_distance(['A', 'B', 'C'])
         self.assertEqual('NO SUCH ROUTE', actual)
+
+    def test_trip_cardinality_with_max_0_stops_is_0(self):
+        path_master = PathMaster(['AB3', 'BC10'])
+        actual = path_master.trip_cardinality(start='A', end='B', stop_range=[0])
+        self.assertEqual(0, actual)

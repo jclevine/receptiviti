@@ -54,6 +54,10 @@ class PathMaster:
 
         return sum([self._edge_attributes[edge] for edge in edge_tuples])
 
+    def trip_cardinality(self, start, end, stop_range):
+        if stop_range == [0]:
+            return 0
+
     @staticmethod
     def build_edge_tuples(path):
         return [tuple(path[i:i + 2]) for i in range(len(path) - 1)]
