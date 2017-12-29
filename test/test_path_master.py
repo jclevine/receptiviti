@@ -31,11 +31,16 @@ class TestPathMaster(TestCase):
         self.assertEqual(0.0, actual)
 
     def test_calculates_0_distance_with_empty_edges_and_empty_vertices_specified(self):
-        path_master = PathMaster(None)
-        actual = path_master.calculate_distance(None)
+        path_master = PathMaster([])
+        actual = path_master.calculate_distance([])
         self.assertEqual(0.0, actual)
 
-    def test_returns_neg_1_if_no_edges_and_any_vertices(self):
+    def test_returns_neg1_if_no_edges_and_any_edges_specified(self):
         path_master = PathMaster(None)
-        actual = path_master.calculate_distance(['ABC'])
+        actual = path_master.calculate_distance(['A'])
+        self.assertEqual(-1, actual)
+
+    def test_returns_neg1_if_empty_edges_and_any_edges_specified(self):
+        path_master = PathMaster([])
+        actual = path_master.calculate_distance(['A'])
         self.assertEqual(-1, actual)
