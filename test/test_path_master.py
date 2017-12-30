@@ -109,3 +109,11 @@ class TestPathMaster(TestCase):
         path_master = PathMaster(['AB3', 'AC10', 'CB1'])
         actual = path_master.trip_cardinality(start='A', end='B', stop_range=[1, 2])
         self.assertEqual(2, actual)
+
+    def test_find_all_paths_for_one_edge(self):
+        path_master = PathMaster(['AB3'])
+        self.assertEqual([['A', 'B']], path_master.find_all_paths('A', 'B', [1]))
+
+    def test_find_all_paths_for_3_edges(self):
+        path_master = PathMaster(['AB3', 'AC10', 'CB1'])
+        self.assertEqual([['A', 'B'], ['A', 'C', 'B']], path_master.find_all_paths('A', 'B', [1, 2]))

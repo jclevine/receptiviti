@@ -1,3 +1,5 @@
+from itertools import chain
+
 import networkx as nx
 
 from src.edge_parser import parse_edge_list
@@ -59,11 +61,28 @@ class PathMaster:
         if stop_range == [0] or not nx.has_path(self._directed_graph, start, end):
             return 0
 
-        all_paths = list(nx.all_simple_paths(self._directed_graph, start, end, stop_range[-1]))
+        all_paths = self.find_all_paths(start, end, stop_range)
+        return len(all_paths)
 
-        def stop_count(hubs):
-            return len(hubs) - 1
-        return len([path for path in all_paths if stop_count(path) in stop_range])
+    def find_all_paths(self, start, end, stop_range):
+        is_out_of_range = max(stop_range) < 0
+        if is_out_of_range:
+            return []
+
+        has_reached_vertex_within_range = start == end and 0 in stop_range
+        if has_reached_vertex_within_range:
+            return end
+        else:
+            def extend_and_return(a, b):
+                a.extend(b)
+                return a
+            downstream_paths = []
+            for adj in self._directed_graph[start]:
+                adj_paths = self.find_all_paths(adj, end, [i - 1 for i in stop_range])
+                downstream_paths.extend(adj_paths)
+
+            all_paths = [extend_and_return([start], path) for path in downstream_paths]
+            return all_paths
 
     @staticmethod
     def build_edge_tuples(path):

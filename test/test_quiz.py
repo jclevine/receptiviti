@@ -26,3 +26,11 @@ class TestQuiz(TestCase):
     def test_5(self):
         actual = self.path_master.calculate_distance(['A', 'E', 'D'])
         self.assertEqual('NO SUCH ROUTE', actual)
+
+    def test_6(self):
+        actual = self.path_master.trip_cardinality('C', 'C', list(range(1, 4)))
+        self.assertEqual(2, actual)
+
+    def test_7(self):
+        actual = self.path_master.trip_cardinality('A', 'C', 4)
+        self.assertEqual(3, actual)
