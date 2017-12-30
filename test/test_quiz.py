@@ -34,3 +34,11 @@ class TestQuiz(TestCase):
     def test_7(self):
         actual = self.path_master.trip_cardinality('A', 'C', 4)
         self.assertEqual(3, actual)
+
+    def test_8(self):
+        actual = self.path_master.shortest_path_distance('A', 'C')
+        self.assertEqual(9, actual)
+
+    def test_9(self):
+        actual = self.path_master.shortest_path_distance('B', 'B')
+        self.assertEqual(9, actual)

@@ -1,5 +1,3 @@
-from itertools import chain
-
 import networkx as nx
 
 from src.edge_parser import parse_edge_list
@@ -87,3 +85,10 @@ class PathMaster:
     @staticmethod
     def build_edge_tuples(path):
         return [tuple(path[i:i + 2]) for i in range(len(path) - 1)]
+
+    def shortest_path_distance(self, start, end):
+        if start == end:
+            return min([nx.dijkstra_path_length(self._directed_graph, one_away, end, 'weight') +
+                        self._directed_graph.get_edge_data(start, one_away)['weight'] for one_away in
+                        self._directed_graph[start]])
+        return nx.dijkstra_path_length(self._directed_graph, start, end, 'weight')
