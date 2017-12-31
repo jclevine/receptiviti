@@ -1,80 +1,68 @@
 import networkx as nx
 
-from src.edge_parser import parse_tracks_into_networkx_edge_list
-
+from src.edge_parser import parse_tracks_into_networkx_edge_list, build_railmap, get_distance, has_route
 
 # TODO: jlevine - Make constant for 'NO SUCH ROUTE' that can be configured?
+from src.util import extend_and_return
+
+
 class RouteFinder:
 
     def __init__(self, tracks):
         self._tracks = tracks
         if tracks:
-            self._rail_map = nx.parse_edgelist(
-                parse_tracks_into_networkx_edge_list(self._tracks),
-                data=[('distance', float)],
-                create_using=nx.DiGraph()
-            )
+            self._rail_map = build_railmap(tracks)
 
-    def calculate_distance(self, path):
+    def calculate_distance(self, route):
         # Special Cases
-        if self._is_not_asking_for_distance_of_anything(path):
+        if self._is_not_asking_for_distance_of_anything(route):
             return 0.0
 
-        if self._no_possible_path_with_no_edges(path):
+        if self._no_possible_route_with_no_tracks(route):
             return -1
 
-        if self._is_path_one_vertex(path):
-            return 0.0 if path[0] in nx.nodes(self._rail_map) else -1
+        if self._has_only_one_town(route):
+            return 0.0 if route[0] in self._rail_map else -1
 
         # Normal Cases
-        edge_tuples = self._build_edge_tuples(path)
+        rails = self._build_rails(route)
 
-        if self._any_vertex_does_not_exist(path):
+        if self._do_some_towns_not_exist(route):
             return -1
 
-        if not self._does_path_exist(edge_tuples):
+        if not self._does_route_exist(rails):
             return 'NO SUCH ROUTE'
 
-        return sum([self._rail_map.get_edge_data(*edge)['distance'] for edge in edge_tuples])
+        return get_distance(self._rail_map, rails)
 
-    def trip_cardinality(self, start, end, stop_range):
-        """
+    def possible_routes(self, origin, destination, layover_range):
+        layover_range = [layover_range] if type(layover_range) is not list else layover_range
 
-        :param start:
-        :param end:
-        :param stop_range:
-        :return:
-        """
-        stop_range = [stop_range] if type(stop_range) is not list else stop_range
-
-        if stop_range == [0] or not nx.has_path(self._rail_map, start, end):
+        if layover_range == [0] or not has_route(self._rail_map, origin, destination):
             return 0
 
-        all_paths = self.find_all_paths(start, end, stop_range)
-        return len(all_paths)
+        all_routes = self.find_all_routes(origin, destination, layover_range)
+        return len(list(all_routes))
 
-    def find_all_paths(self, start, end, stop_range):
-        is_out_of_range = max(stop_range) < 0
+    def find_all_routes(self, origin, destination, layover_range):
+        is_out_of_range = max(layover_range) < 0
         if is_out_of_range:
             return []
 
-        has_reached_vertex_within_range = start == end and 0 in stop_range
-        if has_reached_vertex_within_range:
-            return end
+        has_reached_desination_within_range = origin == destination and 0 in layover_range
+        if has_reached_desination_within_range:
+            return destination
         else:
-            def extend_and_return(a, b):
-                a.extend(b)
-                return a
-            downstream_paths = []
-            for adj in self._rail_map[start]:
-                adj_paths = self.find_all_paths(adj, end, [i - 1 for i in stop_range])
-                downstream_paths.extend(adj_paths)
+            all_downstream_routes = []
+            for adjacent_town in self._rail_map[origin]:
+                decremented_layover_range = [i - 1 for i in layover_range]
+                adjacent_town_routes = self.find_all_routes(adjacent_town, destination, decremented_layover_range)
+                all_downstream_routes.extend(adjacent_town_routes)
 
-            all_paths = [extend_and_return([start], path) for path in downstream_paths]
-            return all_paths
+            return [extend_and_return([origin], route) for route in all_downstream_routes]
 
     @staticmethod
-    def _build_edge_tuples(path):
+    def _build_rails(path):
         """
         Convenience function to turn vertex list into edge tuples
         Eg.
@@ -83,24 +71,32 @@ class RouteFinder:
         """
         return [tuple(path[i:i + 2]) for i in range(len(path) - 1)]
 
-    def shortest_path_distance(self, start, end):
-        if start == end:
-            return min([nx.dijkstra_path_length(self._rail_map, one_away, end, 'distance') +
-                        self._rail_map.get_edge_data(start, one_away)['distance'] for one_away in
-                        self._rail_map[start]])
-        return nx.dijkstra_path_length(self._rail_map, start, end, 'distance')
+    def shortest_path_distance_but_cant_stay_here(self, origin, destination):
+        if origin == destination:
+            return min(
+                [
+                    # Distance from origin to adjacent town
+                    self._rail_map.get_edge_data(origin, adjacent_town)['distance'] +
+                    # Distance from that adjacent town to destination
+                    nx.dijkstra_path_length(self._rail_map, adjacent_town, destination, 'distance')
 
-    def count_routes(self, start, end, max_distance):
+                    for adjacent_town in self._rail_map[origin]
+                ]
+            )
+        else:
+            return nx.dijkstra_path_length(self._rail_map, origin, destination, 'distance')
+
+    def count_routes(self, origin, destination, max_distance):
         # TODO: jlevine - Perf improvement by cloning if start and end are the same
         first_legs = [
             self.calculate_distance(path)
-            for path in nx.all_simple_paths(self._rail_map, start, end)
+            for path in nx.all_simple_paths(self._rail_map, origin, destination)
             if self.calculate_distance(path) < max_distance
         ]
 
         cycle_legs = [
             self.calculate_distance(path)
-            for path in nx.all_simple_paths(self._rail_map, end, end)
+            for path in nx.all_simple_paths(self._rail_map, destination, destination)
             if self.calculate_distance(path) < (max_distance - min(first_legs))
         ]
 
@@ -120,15 +116,15 @@ class RouteFinder:
     def _is_not_asking_for_distance_of_anything(self, path):
         return not self._tracks and not path
 
-    def _no_possible_path_with_no_edges(self, path):
+    def _no_possible_route_with_no_tracks(self, path):
         return not self._tracks and path
 
-    def _does_path_exist(self, edge_tuples):
+    def _does_route_exist(self, edge_tuples):
         return all([self._rail_map.has_edge(*edge) for edge in edge_tuples])
 
     @staticmethod
-    def _is_path_one_vertex(path):
+    def _has_only_one_town(path):
         return len(path) == 1
 
-    def _any_vertex_does_not_exist(self, path):
-        return bool(set(path) - set(nx.nodes(self._rail_map)))
+    def _do_some_towns_not_exist(self, path):
+        return bool(set(path) - set(self._rail_map))

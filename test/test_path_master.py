@@ -82,38 +82,38 @@ class TestPathMaster(TestCase):
 
     def test_trip_cardinality_with_max_0_stops_is_0(self):
         path_master = RouteFinder(['AB3', 'BC10'])
-        actual = path_master.trip_cardinality(start='A', end='B', stop_range=[0])
+        actual = path_master.possible_routes(origin='A', destination='B', layover_range=[0])
         self.assertEqual(0, actual)
 
     def test_trip_cardinality_with_max_1_stop_is_0_if_path_does_not_exist(self):
         path_master = RouteFinder(['AB3', 'BC10', 'DA4'])
-        actual = path_master.trip_cardinality(start='A', end='D', stop_range=[1])
+        actual = path_master.possible_routes(origin='A', destination='D', layover_range=[1])
         self.assertEqual(0, actual)
 
     def test_trip_cardinality_with_max_1_stop_is_1_if_path_does_exist(self):
         path_master = RouteFinder(['AB3'])
-        actual = path_master.trip_cardinality(start='A', end='B', stop_range=[1])
+        actual = path_master.possible_routes(origin='A', destination='B', layover_range=[1])
         self.assertEqual(1, actual)
 
     def test_trip_cardinality_returns_0_if_min_2_stop_with_one_stop_available(self):
         path_master = RouteFinder(['AB3'])
-        actual = path_master.trip_cardinality(start='A', end='B', stop_range=[2])
+        actual = path_master.possible_routes(origin='A', destination='B', layover_range=[2])
         self.assertEqual(0, actual)
 
     def test_trip_cardinality_with_max_stop_is_1_if_path_does_exist_with_range_length_1(self):
         path_master = RouteFinder(['AB3'])
-        actual = path_master.trip_cardinality(start='A', end='B', stop_range=1)
+        actual = path_master.possible_routes(origin='A', destination='B', layover_range=1)
         self.assertEqual(1, actual)
 
     def test_trip_cardinality_is_2_if_max_stop_is_2_and_there_are_2_trips_in_range(self):
         path_master = RouteFinder(['AB3', 'AC10', 'CB1'])
-        actual = path_master.trip_cardinality(start='A', end='B', stop_range=[1, 2])
+        actual = path_master.possible_routes(origin='A', destination='B', layover_range=[1, 2])
         self.assertEqual(2, actual)
 
     def test_find_all_paths_for_one_edge(self):
         path_master = RouteFinder(['AB3'])
-        self.assertEqual([['A', 'B']], path_master.find_all_paths('A', 'B', [1]))
+        self.assertEqual([['A', 'B']], path_master.find_all_routes('A', 'B', [1]))
 
     def test_find_all_paths_for_3_edges(self):
         path_master = RouteFinder(['AB3', 'AC10', 'CB1'])
-        self.assertEqual([['A', 'B'], ['A', 'C', 'B']], path_master.find_all_paths('A', 'B', [1, 2]))
+        self.assertEqual([['A', 'B'], ['A', 'C', 'B']], path_master.find_all_routes('A', 'B', [1, 2]))
