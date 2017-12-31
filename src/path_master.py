@@ -86,45 +86,48 @@ class RouteFinder:
         else:
             return nx.dijkstra_path_length(self._rail_map, origin, destination, 'distance')
 
-    def count_routes(self, origin, destination, max_distance):
-        # TODO: jlevine - Perf improvement by cloning if start and end are the same
-        first_legs = [
-            self.calculate_distance(path)
-            for path in nx.all_simple_paths(self._rail_map, origin, destination)
-            if self.calculate_distance(path) < max_distance
+    def count_routes(self, origin, destination, distance_limit):
+        first_legs = self._simple_route_distances_with_max_distance(origin, destination, distance_limit)
+        cycle_legs = self._simple_route_distances_with_max_distance(origin, destination, distance_limit) \
+            if origin != destination else first_legs
+
+        route_count = len(first_legs)
+
+        for route_distance in first_legs:
+            route_count += \
+                self._route_combo_count_within_distance_limit(cycle_legs, distance_limit - route_distance)
+        return route_count
+
+    def _simple_route_distances_with_max_distance(self, origin, destination, max_distance):
+        return [
+            self.calculate_distance(route)
+            for route in nx.all_simple_paths(self._rail_map, origin, destination)
+            if self.calculate_distance(route) < max_distance
         ]
 
-        cycle_legs = [
-            self.calculate_distance(path)
-            for path in nx.all_simple_paths(self._rail_map, destination, destination)
-            if self.calculate_distance(path) < (max_distance - min(first_legs))
-        ]
-
-        count = len(first_legs)
-
-        for path in first_legs:
-            count += self.max_dfs(cycle_legs, max_distance - path)
-        return count
-
-    def max_dfs(self, potential_paths, max_distance):
+    def _route_combo_count_within_distance_limit(self, potential_route_distances, distance_limit):
         total = 0
-        for path in potential_paths:
-            if path < max_distance:
-                total += 1 + self.max_dfs(potential_paths, max_distance - path)
+        for potential_route_distance in potential_route_distances:
+            if potential_route_distance < distance_limit:
+                updated_distance_limit = distance_limit - potential_route_distance
+                total += (1 +
+                          self._route_combo_count_within_distance_limit(
+                              potential_route_distances, updated_distance_limit
+                          ))
         return total
 
-    def _is_not_asking_for_distance_of_anything(self, path):
-        return not self._tracks and not path
+    def _is_not_asking_for_distance_of_anything(self, route):
+        return not self._tracks and not route
 
-    def _no_possible_route_with_no_tracks(self, path):
-        return not self._tracks and path
+    def _no_possible_route_with_no_tracks(self, route):
+        return not self._tracks and route
 
-    def _does_route_exist(self, edge_tuples):
-        return all([self._rail_map.has_edge(*edge) for edge in edge_tuples])
+    def _does_route_exist(self, rails):
+        return all([self._rail_map.has_edge(*edge) for edge in rails])
 
     @staticmethod
-    def _has_only_one_town(path):
-        return len(path) == 1
+    def _has_only_one_town(route):
+        return len(route) == 1
 
-    def _do_some_towns_not_exist(self, path):
-        return bool(set(path) - set(self._rail_map))
+    def _do_some_towns_not_exist(self, route):
+        return bool(set(route) - set(self._rail_map))
