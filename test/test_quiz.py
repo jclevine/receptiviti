@@ -1,11 +1,11 @@
 from unittest import TestCase
 
-from src.path_master import PathMaster
+from src.path_master import RouteFinder
 
 
 class TestQuiz(TestCase):
     edges = ['AB5', 'BC4', 'CD8', 'DC8', 'DE6', 'AD5', 'CE2', 'EB3', 'AE7']
-    path_master = PathMaster(edges)
+    path_master = RouteFinder(edges)
 
     def test_1(self):
         actual = self.path_master.calculate_distance(['A', 'B', 'C'])

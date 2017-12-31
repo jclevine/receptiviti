@@ -1,17 +1,17 @@
 import networkx as nx
 
-from src.edge_parser import parse_edge_list
+from src.edge_parser import parse_tracks_into_networkx_edge_list
 
 
 # TODO: jlevine - Make constant for 'NO SUCH ROUTE' that can be configured?
-class PathMaster:
+class RouteFinder:
 
-    def __init__(self, edges):
-        self._edges = edges
-        if edges:
-            self._directed_graph = nx.parse_edgelist(
-                parse_edge_list(self._edges),
-                data=[('weight', float)],
+    def __init__(self, tracks):
+        self._tracks = tracks
+        if tracks:
+            self._rail_map = nx.parse_edgelist(
+                parse_tracks_into_networkx_edge_list(self._tracks),
+                data=[('distance', float)],
                 create_using=nx.DiGraph()
             )
 
@@ -24,7 +24,7 @@ class PathMaster:
             return -1
 
         if self._is_path_one_vertex(path):
-            return 0.0 if path[0] in nx.nodes(self._directed_graph) else -1
+            return 0.0 if path[0] in nx.nodes(self._rail_map) else -1
 
         # Normal Cases
         edge_tuples = self._build_edge_tuples(path)
@@ -35,12 +35,19 @@ class PathMaster:
         if not self._does_path_exist(edge_tuples):
             return 'NO SUCH ROUTE'
 
-        return sum([self._directed_graph.get_edge_data(*edge)['weight'] for edge in edge_tuples])
+        return sum([self._rail_map.get_edge_data(*edge)['distance'] for edge in edge_tuples])
 
     def trip_cardinality(self, start, end, stop_range):
+        """
+
+        :param start:
+        :param end:
+        :param stop_range:
+        :return:
+        """
         stop_range = [stop_range] if type(stop_range) is not list else stop_range
 
-        if stop_range == [0] or not nx.has_path(self._directed_graph, start, end):
+        if stop_range == [0] or not nx.has_path(self._rail_map, start, end):
             return 0
 
         all_paths = self.find_all_paths(start, end, stop_range)
@@ -59,7 +66,7 @@ class PathMaster:
                 a.extend(b)
                 return a
             downstream_paths = []
-            for adj in self._directed_graph[start]:
+            for adj in self._rail_map[start]:
                 adj_paths = self.find_all_paths(adj, end, [i - 1 for i in stop_range])
                 downstream_paths.extend(adj_paths)
 
@@ -78,22 +85,22 @@ class PathMaster:
 
     def shortest_path_distance(self, start, end):
         if start == end:
-            return min([nx.dijkstra_path_length(self._directed_graph, one_away, end, 'weight') +
-                        self._directed_graph.get_edge_data(start, one_away)['weight'] for one_away in
-                        self._directed_graph[start]])
-        return nx.dijkstra_path_length(self._directed_graph, start, end, 'weight')
+            return min([nx.dijkstra_path_length(self._rail_map, one_away, end, 'distance') +
+                        self._rail_map.get_edge_data(start, one_away)['distance'] for one_away in
+                        self._rail_map[start]])
+        return nx.dijkstra_path_length(self._rail_map, start, end, 'distance')
 
     def count_routes(self, start, end, max_distance):
         # TODO: jlevine - Perf improvement by cloning if start and end are the same
         first_legs = [
             self.calculate_distance(path)
-            for path in nx.all_simple_paths(self._directed_graph, start, end)
+            for path in nx.all_simple_paths(self._rail_map, start, end)
             if self.calculate_distance(path) < max_distance
         ]
 
         cycle_legs = [
             self.calculate_distance(path)
-            for path in nx.all_simple_paths(self._directed_graph, end, end)
+            for path in nx.all_simple_paths(self._rail_map, end, end)
             if self.calculate_distance(path) < (max_distance - min(first_legs))
         ]
 
@@ -111,17 +118,17 @@ class PathMaster:
         return total
 
     def _is_not_asking_for_distance_of_anything(self, path):
-        return not self._edges and not path
+        return not self._tracks and not path
 
     def _no_possible_path_with_no_edges(self, path):
-        return not self._edges and path
+        return not self._tracks and path
 
     def _does_path_exist(self, edge_tuples):
-        return all([self._directed_graph.has_edge(*edge) for edge in edge_tuples])
+        return all([self._rail_map.has_edge(*edge) for edge in edge_tuples])
 
     @staticmethod
     def _is_path_one_vertex(path):
         return len(path) == 1
 
     def _any_vertex_does_not_exist(self, path):
-        return bool(set(path) - set(nx.nodes(self._directed_graph)))
+        return bool(set(path) - set(nx.nodes(self._rail_map)))
