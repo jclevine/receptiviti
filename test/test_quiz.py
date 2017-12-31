@@ -42,3 +42,7 @@ class TestQuiz(TestCase):
     def test_9(self):
         actual = self.path_master.shortest_path_distance('B', 'B')
         self.assertEqual(9, actual)
+
+    def test_10(self):
+        actual = self.path_master.count_routes('C', 'C', 30)
+        self.assertEqual(7, actual)

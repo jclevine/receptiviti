@@ -92,3 +92,31 @@ class PathMaster:
                         self._directed_graph.get_edge_data(start, one_away)['weight'] for one_away in
                         self._directed_graph[start]])
         return nx.dijkstra_path_length(self._directed_graph, start, end, 'weight')
+
+    def count_routes(self, start, end, max_distance):
+        # TODO: jlevine - Perf improvement by cloning if start and end are the same
+        first_legs = [
+            self.calculate_distance(path)
+            for path in nx.all_simple_paths(self._directed_graph, start, end)
+            if self.calculate_distance(path) < max_distance
+        ]
+
+        cycle_legs = [
+            self.calculate_distance(path)
+            for path in nx.all_simple_paths(self._directed_graph, end, end)
+            if self.calculate_distance(path) < (max_distance - min(first_legs))
+        ]
+
+        count = len(first_legs)
+
+        for path in first_legs:
+            count += self.max_dfs(cycle_legs, max_distance - path)
+        return count
+
+    def max_dfs(self, potential_paths, max_distance):
+        total = 0
+        for path in potential_paths:
+            if path < max_distance:
+                total += 1 + self.max_dfs(potential_paths, max_distance - path)
+        return total
+
