@@ -62,16 +62,6 @@ class RouteFinder:
 
             return [extend_and_return([origin], route) for route in all_downstream_routes]
 
-    @staticmethod
-    def _build_rails(path):
-        """
-        Convenience function to turn vertex list into edge tuples
-        Eg.
-        Input: ['A', 'B', 'C']
-        Output: [('A', 'B'), ('B', 'C')]
-        """
-        return [tuple(path[i:i + 2]) for i in range(len(path) - 1)]
-
     def shortest_path_distance_but_cant_stay_here(self, origin, destination):
         if origin == destination:
             return min(
@@ -98,6 +88,16 @@ class RouteFinder:
             route_count += \
                 self._route_combo_count_within_distance_limit(cycle_legs, distance_limit - route_distance)
         return route_count
+
+    @staticmethod
+    def _build_rails(route):
+        """
+        Convenience function to turn vertex list into edge tuples
+        Eg.
+        Input: ['A', 'B', 'C']
+        Output: [('A', 'B'), ('B', 'C')]
+        """
+        return [tuple(route[i:i + 2]) for i in range(len(route) - 1)]
 
     def _simple_route_distances_with_max_distance(self, origin, destination, max_distance):
         return [
