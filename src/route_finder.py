@@ -2,13 +2,14 @@ import networkx as nx
 
 from src.networkx_helper import build_railmap, get_distance, has_route
 
-# TODO: jlevine - Make constant for 'NO SUCH ROUTE' that can be configured?
 from src.util import extend_and_return
 
 
 class RouteFinder:
+    NO_SUCH_ROUTE = 'NO SUCH ROUTE'
 
-    def __init__(self, tracks):
+    def __init__(self, tracks, no_route='NO SUCH ROUTE'):
+        self.NO_SUCH_PROPERTY = no_route
         self._tracks = tracks
         if tracks:
             self._railmap = build_railmap(tracks)
@@ -31,7 +32,7 @@ class RouteFinder:
             return -1
 
         if not self._does_route_exist(rails):
-            return 'NO SUCH ROUTE'
+            return self.NO_SUCH_ROUTE
 
         return get_distance(self._railmap, rails)
 

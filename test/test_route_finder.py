@@ -3,7 +3,6 @@ from unittest import TestCase
 from src.route_finder import RouteFinder
 
 
-# TODO: jlevine - Change names to be in the domain (eg. trips, stops)
 class TestPathMaster(TestCase):
     tracks = ['AB5', 'BC4', 'CD8', 'DC8', 'DE6', 'AD5', 'CE2', 'EB3', 'AE10']
 
@@ -63,7 +62,7 @@ class TestPathMaster(TestCase):
     def test_returns_NO_SUCH_ROUTE_distance_if_route_does_not_exist(self):
         path_master = RouteFinder(['AB3', 'CD9'])
         actual = path_master.calculate_distance(['A', 'C'])
-        self.assertEqual('NO SUCH ROUTE', actual)
+        self.assertEqual(path_master.NO_SUCH_ROUTE, actual)
 
     def test_returns_distance_if_calculating_one_existing_rail(self):
         path_master = RouteFinder(['AB3'])
@@ -78,7 +77,7 @@ class TestPathMaster(TestCase):
     def test_returns_NO_SUCH_ROUTE_if_route_exists_from_origin_to_destination_but_not_by_given_route(self):
         path_master = RouteFinder(['AB3', 'AC5'])
         actual = path_master.calculate_distance(['A', 'B', 'C'])
-        self.assertEqual('NO SUCH ROUTE', actual)
+        self.assertEqual(path_master.NO_SUCH_ROUTE, actual)
 
     def test_possible_route_count_with_range_of_0_layovers_is_0(self):
         path_master = RouteFinder(['AB3', 'BC10'])
