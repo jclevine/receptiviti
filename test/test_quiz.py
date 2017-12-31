@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from src.path_master import RouteFinder
+from src.route_finder import RouteFinder
 
 
 class TestQuiz(TestCase):
@@ -28,11 +28,11 @@ class TestQuiz(TestCase):
         self.assertEqual('NO SUCH ROUTE', actual)
 
     def test_6(self):
-        actual = self.RouteFinder.possible_routes('C', 'C', list(range(1, 4)))
+        actual = self.RouteFinder.possible_route_count('C', 'C', list(range(1, 4)))
         self.assertEqual(2, actual)
 
     def test_7(self):
-        actual = self.RouteFinder.possible_routes('A', 'C', 4)
+        actual = self.RouteFinder.possible_route_count('A', 'C', 4)
         self.assertEqual(3, actual)
 
     def test_8(self):

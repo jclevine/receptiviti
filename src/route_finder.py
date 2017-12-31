@@ -1,6 +1,6 @@
 import networkx as nx
 
-from src.edge_parser import build_railmap, get_distance, has_route
+from src.networkx_helper import build_railmap, get_distance, has_route
 
 # TODO: jlevine - Make constant for 'NO SUCH ROUTE' that can be configured?
 from src.util import extend_and_return
@@ -35,7 +35,7 @@ class RouteFinder:
 
         return get_distance(self._railmap, rails)
 
-    def possible_routes(self, origin, destination, layover_range):
+    def possible_route_count(self, origin, destination, layover_range):
         layover_range = [layover_range] if type(layover_range) is not list else layover_range
 
         if layover_range == [0] or not has_route(self._railmap, origin, destination):
