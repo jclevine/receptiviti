@@ -1,6 +1,6 @@
 import networkx as nx
 
-from src.edge_parser import parse_tracks_into_networkx_edge_list, build_railmap, get_distance, has_route
+from src.edge_parser import build_railmap, get_distance, has_route
 
 # TODO: jlevine - Make constant for 'NO SUCH ROUTE' that can be configured?
 from src.util import extend_and_return
@@ -11,7 +11,7 @@ class RouteFinder:
     def __init__(self, tracks):
         self._tracks = tracks
         if tracks:
-            self._rail_map = build_railmap(tracks)
+            self._railmap = build_railmap(tracks)
 
     def calculate_distance(self, route):
         # Special Cases
@@ -22,7 +22,7 @@ class RouteFinder:
             return -1
 
         if self._has_only_one_town(route):
-            return 0.0 if route[0] in self._rail_map else -1
+            return 0.0 if route[0] in self._railmap else -1
 
         # Normal Cases
         rails = self._build_rails(route)
@@ -33,12 +33,12 @@ class RouteFinder:
         if not self._does_route_exist(rails):
             return 'NO SUCH ROUTE'
 
-        return get_distance(self._rail_map, rails)
+        return get_distance(self._railmap, rails)
 
     def possible_routes(self, origin, destination, layover_range):
         layover_range = [layover_range] if type(layover_range) is not list else layover_range
 
-        if layover_range == [0] or not has_route(self._rail_map, origin, destination):
+        if layover_range == [0] or not has_route(self._railmap, origin, destination):
             return 0
 
         all_routes = self.find_all_routes(origin, destination, layover_range)
@@ -54,7 +54,7 @@ class RouteFinder:
             return destination
         else:
             all_downstream_routes = []
-            for adjacent_town in self._rail_map[origin]:
+            for adjacent_town in self._railmap[origin]:
                 decremented_layover_range = [i - 1 for i in layover_range]
                 adjacent_town_routes = self.find_all_routes(adjacent_town, destination, decremented_layover_range)
                 all_downstream_routes.extend(adjacent_town_routes)
@@ -76,15 +76,15 @@ class RouteFinder:
             return min(
                 [
                     # Distance from origin to adjacent town
-                    self._rail_map.get_edge_data(origin, adjacent_town)['distance'] +
+                    self._railmap.get_edge_data(origin, adjacent_town)['distance'] +
                     # Distance from that adjacent town to destination
-                    nx.dijkstra_path_length(self._rail_map, adjacent_town, destination, 'distance')
+                    nx.dijkstra_path_length(self._railmap, adjacent_town, destination, 'distance')
 
-                    for adjacent_town in self._rail_map[origin]
+                    for adjacent_town in self._railmap[origin]
                 ]
             )
         else:
-            return nx.dijkstra_path_length(self._rail_map, origin, destination, 'distance')
+            return nx.dijkstra_path_length(self._railmap, origin, destination, 'distance')
 
     def count_routes(self, origin, destination, distance_limit):
         first_legs = self._simple_route_distances_with_max_distance(origin, destination, distance_limit)
@@ -101,7 +101,7 @@ class RouteFinder:
     def _simple_route_distances_with_max_distance(self, origin, destination, max_distance):
         return [
             self.calculate_distance(route)
-            for route in nx.all_simple_paths(self._rail_map, origin, destination)
+            for route in nx.all_simple_paths(self._railmap, origin, destination)
             if self.calculate_distance(route) < max_distance
         ]
 
@@ -123,11 +123,11 @@ class RouteFinder:
         return not self._tracks and route
 
     def _does_route_exist(self, rails):
-        return all([self._rail_map.has_edge(*edge) for edge in rails])
+        return all([self._railmap.has_edge(*edge) for edge in rails])
 
     @staticmethod
     def _has_only_one_town(route):
         return len(route) == 1
 
     def _do_some_towns_not_exist(self, route):
-        return bool(set(route) - set(self._rail_map))
+        return bool(set(route) - set(self._railmap))
