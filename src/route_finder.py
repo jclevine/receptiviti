@@ -9,7 +9,7 @@ class RouteFinder:
     NO_SUCH_ROUTE = 'NO SUCH ROUTE'
 
     def __init__(self, tracks, no_route='NO SUCH ROUTE'):
-        self.NO_SUCH_PROPERTY = no_route
+        self.NO_SUCH_ROUTE = no_route
         self._tracks = tracks
         if tracks:
             self._railmap = build_railmap(tracks)
